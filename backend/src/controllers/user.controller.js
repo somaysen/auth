@@ -23,7 +23,7 @@ const userRegisterController = async (req, res) => {
             password: hashedPassword
         },);
         
-        const token = jwt.sign( { userId: newUser._id }, process.env.JWT_SECRET, { expiresIn: '1h' } );
+        const token = jwt.sign( { userId: newUser._id,role: newUser.role }, process.env.JWT_SECRET, { expiresIn: '1h' } );
         res.cookie('token',token);
 
         await newUser.save(); 
@@ -62,7 +62,7 @@ const userLoginController = async (req, res) => {
                 message:"invalid credentials"
             })
         }
-        const token = jwt.sign( { userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' } );
+        const token = jwt.sign( { userId: user._id,role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' } );
         res.cookie('token',token);
 
         res.status(200).json({
@@ -76,4 +76,13 @@ const userLoginController = async (req, res) => {
     }
 };
 
-module.exports = { userRegisterController, userLoginController };
+const logoutController = (req, res) => {
+    try {
+        res.clearCookie('token');
+        res.status(200).json({ message: 'Logout successful' });
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
+
+module.exports = { userRegisterController, userLoginController, logoutController };
