@@ -1,31 +1,40 @@
 const jwt = require('jsonwebtoken');
 
-
 const authmiddleware = (req, res, next) => {
     try {
-
-        const token = req.cookies.token;
+        // Check for token in cookies and Authorization header
+        const token = req.cookies.token || req.headers.authorization?.split(' ')[1];
 
         if (!token) {
             return res.status(401).json({ 
-                message: 'token not found'
+                success: false,
+                message: 'Authentication token is required'
             });
         }
 
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-        if (!decoded) {
-            return res.status(401).json({ message: 'Unauthorized: Invalid token' });
+        try {
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            req.user = decoded;
+            next();
+        } catch (jwtError) {
+            if (jwtError.name === 'TokenExpiredError') {
+                return res.status(401).json({
+                    success: false,
+                    message: 'Token has expired'
+                });
+            }
+            return res.status(401).json({
+                success: false,
+                message: 'Invalid token'
+            });
         }
-
-        req.user = decoded;
-        next();
-        
     } catch (error) {
-        console.error('Error fetching user:', error);
+        console.error('Auth middleware error:', error);
         return res.status(500).json({ 
-            message: 'Internal Server Error'
-        });  
+            success: false,
+            message: 'Internal Server Error',
+            ...(process.env.NODE_ENV === 'development' && { error: error.message })
+        });
     }
 };
 
