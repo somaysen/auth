@@ -1,0 +1,13 @@
+{
+  "name": "auth",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "cd backend && npm install --production && npm start",
+    "build": "cd backend && npm install --production",
+    "dev": "cd backend && npm run dev"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
