@@ -7,12 +7,16 @@ const userRegisterController = async (req, res) => {
         const {name, email, password} = req.body;
 
         if(!name || !email || !password) {
-            return res.status(400).json({ message: 'All fields are required' });
+            return res.status(400).json({
+                message: 'All fields are required' 
+            });
         }
 
         const userExists = await UserModel.findOne({ email });
         if (userExists) {
-            return res.status(400).json({ message: 'User already exists' });
+            return res.status(400).json({ 
+                message: 'User already exists'
+            });
         }
         const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -36,7 +40,10 @@ const userRegisterController = async (req, res) => {
         
     } catch (error) {
         console.log("error register  ",error);
-        res.status(500).json({ message: 'Server error', error: error.message });
+        res.status(500).json({
+            message: 'Server error',
+            error: error.message
+        });
     }
 }
 
@@ -46,7 +53,9 @@ const userLoginController = async (req, res) => {
         const { email, password } = req.body;
 
         if(!email || !password) {
-            return res.status(400).json({ message: 'All fields are required' });
+            return res.status(400).json({
+                message: 'All fields are required'
+            });
         }
 
         const user = await UserModel.findOne({email});
@@ -72,7 +81,9 @@ const userLoginController = async (req, res) => {
         });
     } catch (error) {
         console.log("error login  ",error);
-        res.status(500).json({ message: 'Server error', error: error.message });
+        res.status(500).json({
+            message: 'Server error', error: error.message
+        });
     }
 };
 
@@ -81,7 +92,10 @@ const logoutController = (req, res) => {
         res.clearCookie('token');
         res.status(200).json({ message: 'Logout successful' });
     } catch (error) {
-        res.status(500).json({ message: 'Server error', error: error.message });
+        res.status(500).json({
+            message: 'Server error',
+            error: error.message
+        });
     }
 };
 
