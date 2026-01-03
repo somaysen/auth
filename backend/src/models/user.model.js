@@ -1,4 +1,3 @@
-const e = require('express');
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
@@ -19,6 +18,10 @@ const userSchema = new mongoose.Schema({
         type: String,
         enum: ['user', 'admin'],
         default: 'user'
+    },
+    postId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Post'
     }
 }, { timestamps: true });
 
