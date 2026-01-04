@@ -6,7 +6,7 @@ const getMedia = async (req, res) => {
   try {
     const { query, type } = req.query;
 
-    // query required
+    // 🔴 query required
     if (!query) {
       return res.status(400).json({
         success: false,
@@ -16,21 +16,22 @@ const getMedia = async (req, res) => {
 
     let data;
 
-    // ✅ agar type NA ho → teeno ka data
+    // ✅ type NA ho → teeno ka data (SAFE way)
     if (!type) {
-      const [images, videos, gifs] = await Promise.all([
+      const results = await Promise.allSettled([
         imageService.searchPhotos(query),
         videosService.searchVideos(query),
         gifService.searchGifs(query),
       ]);
 
       data = {
-        images,
-        videos,
-        gifs,
+        images: results[0].status === "fulfilled" ? results[0].value : [],
+        videos: results[1].status === "fulfilled" ? results[1].value : [],
+        gifs: results[2].status === "fulfilled" ? results[2].value : [],
       };
-    } 
-    // ✅ agar type ho
+    }
+
+    // ✅ type diya ho
     else {
       switch (type) {
         case "images":
@@ -59,11 +60,12 @@ const getMedia = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Error fetching media:", error.message);
-    res.status(500).json({
+    console.error("Error fetching media:", error.response?.data || error.message);
+
+    return res.status(500).json({
       success: false,
       message: "Failed to fetch media",
-      error: error.message,
+      error: error.response?.data || error.message,
     });
   }
 };
